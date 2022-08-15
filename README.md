@@ -1,4 +1,5 @@
 # RealSR_GUI
+### 项目是[Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN)的GUI
 ### 直接[下载](https://github.com/lrst6963/RealSR_GUI/releases)RealSR_GUI-Core.zip解压使用即可
 - 主题使用[MaterialDesignInXamlToolkit](https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit)
 - 项目纯属个人练习
