@@ -11,6 +11,8 @@
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <ApplicationIcon>realesrgan_logo.ico</ApplicationIcon>
+    <FileVersion>1.0.2</FileVersion>
+    <IncludeSymbols>False</IncludeSymbols>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

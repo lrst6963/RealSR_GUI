@@ -39,6 +39,9 @@ namespace RealSR_GUI
         {
             ComboBox_Module.Items.Add("realesrgan-x4plus-anime");
             ComboBox_Module.Items.Add("realesrgan-x4plus");
+            ComboBox_Module.Items.Add("realesr-animevideov3-x2");
+            ComboBox_Module.Items.Add("realesr-animevideov3-x3");
+            ComboBox_Module.Items.Add("realesr-animevideov3-x4");
             string[,] Colors = { { "Red", "Pink", "Purple", "DeepPurple", "Indigo", "Blue", "LightBlue", "Cyan", "Teal", "Green", "LightGreen", "Lime", "Yellow", "Orange", "DeepSkyBlue", "Brown", "Grey", "SkyBlue", "Amber" } };
             foreach (string Color in Colors)
             {
@@ -100,37 +103,51 @@ namespace RealSR_GUI
             }
         }
 
-        private void START_Click(object sender, RoutedEventArgs e)
+        private async void START_Click(object sender, RoutedEventArgs e)
         {
             if (File.Exists((string)filedirs.Content) != true)
             {
                 if ((string)filedirs.Content != string.Empty)//选择文件不为空时执行
                 {
+                    START.IsEnabled = false;
+                    Open_Dir.IsEnabled = false;
+                    int i = 1;
                     foreach (string item in FileArrList)
                     {
                         string filename_NoEx = System.IO.Path.GetFileNameWithoutExtension(item);
-                        string filename = System.IO.Path.GetFileNameWithoutExtension(item) + "x4." + "png";
+                        string filename = System.IO.Path.GetFileNameWithoutExtension(item) + "-ENLARGE-." + "png";
                         string outputfile = System.IO.Path.GetDirectoryName(item) + "\\" + filename;
                         string commd = string.Format(@"realesrgan-ncnn-vulkan -i ""{0}"" -o ""{1}"" -n {2}", item, outputfile, ComboBox_Module.Text);
-                        Execute(NoWindow, commd);
+                        if (Imgtype == "png")
+                        {
+                            await Task.Run(() => Execute(NoWindow, commd));
+                            filedirs_out.Content = string.Format("({0}/{1}个文件已完成)",i,FileArrList.Length);
+                            i++;
+                        }                        
                         if (Imgtype == "jpg")//转换JPG
                         {
-                            string outputfiles = System.IO.Path.GetDirectoryName(outputfile) + "\\" + filename_NoEx + "x4." + "jpg";
+                            string outputfiles = System.IO.Path.GetDirectoryName(outputfile) + "\\" + filename_NoEx + "-ENLARGE-." + "jpg";
                             string commds = string.Format(@"ffmpeg.exe -y -i ""{0}"" -q 1 ""{1}"" & del ""{0}""", outputfile, outputfiles);
-                            Execute(NoWindow, commds);
+                            await Task.Run(() => Execute(NoWindow, commd + " & " + commds));
+                            filedirs_out.Content = string.Format("({0}/{1}个文件已完成)", i, FileArrList.Length);
+                            i++;
                         }
                         else if (Imgtype == "webp")//转换WEBP
                         {
-                            string outputfiles = System.IO.Path.GetDirectoryName(outputfile) + "\\" + filename_NoEx + "x4." + "webp";
+                            string outputfiles = System.IO.Path.GetDirectoryName(outputfile) + "\\" + filename_NoEx + "-ENLARGE-." + "webp";
                             string commds = string.Format(@"ffmpeg.exe -i ""{0}""  -vf scale=iw:ih -codec libwebp -lossless 0 -q 100 ""{1}"" & del ""{0}""", outputfile, outputfiles);
-                            Execute(NoWindow, commds);
+                            await Task.Run(() => Execute(NoWindow, commd + " & " + commds));
+                            filedirs_out.Content = string.Format("({0}/{1}个文件已完成)", i, FileArrList.Length);
+                            i++;
                         }
                         //if (CheckBox_1.IsChecked == true)//完成后打开
                         //{
                         //    Execute(true, string.Format(@"explorer ""{0}""", outputfile));
                         //}
                     }
-                    MessageBox.Show("完成!");
+                    START.IsEnabled = true;
+                    Open_Dir.IsEnabled = true;
+                    MessageBox.Show("完成!","提示",MessageBoxButton.OK,MessageBoxImage.Asterisk);
                 }
             }
             else
@@ -138,14 +155,14 @@ namespace RealSR_GUI
                 if ((string)filedirs.Content != string.Empty)//选择文件不为空时执行
                 {
                     string filename_NoEx = System.IO.Path.GetFileNameWithoutExtension((string)filedirs.Content);
-                    string filename = filename_NoEx + "x4." + "png";
+                    string filename = filename_NoEx + "-ENLARGE-." + "png";
                     string outputfile = System.IO.Path.GetDirectoryName((string)filedirs.Content) + "\\" + filename;
                     string commd = string.Format(@"realesrgan-ncnn-vulkan -i ""{0}"" -o ""{1}"" -n {2}", filedirs.Content, outputfile, ComboBox_Module.Text);
                     Execute(NoWindow, commd);
                     filedirs_out.Content = outputfile;
                     if (Imgtype == "jpg")//转换JPG
                     {
-                        string outputfiles = System.IO.Path.GetDirectoryName(outputfile) + "\\" + filename_NoEx + "x4." + "jpg";
+                        string outputfiles = System.IO.Path.GetDirectoryName(outputfile) + "\\" + filename_NoEx + "-ENLARGE-." + "jpg";
                         string commds = string.Format(@"ffmpeg.exe -y -i ""{0}"" -q 1 ""{1}"" & del ""{0}""", outputfile, outputfiles);
                         Execute(NoWindow,commds);
                         if (CheckBox_1.IsChecked == true)
@@ -156,7 +173,7 @@ namespace RealSR_GUI
                     }
                     else if (Imgtype == "webp")//转换WEBP
                     {
-                        string outputfiles = System.IO.Path.GetDirectoryName(outputfile) + "\\" + filename_NoEx + "x4." + "webp";
+                        string outputfiles = System.IO.Path.GetDirectoryName(outputfile) + "\\" + filename_NoEx + "-ENLARGE-." + "webp";
                         string commds = string.Format(@"ffmpeg.exe -i ""{0}""  -vf scale=iw:ih -codec libwebp -lossless 0 -q 100 ""{1}"" & del ""{0}""", outputfile, outputfiles);
                         Execute(NoWindow, commds);
                         if (CheckBox_1.IsChecked == true)
@@ -297,11 +314,15 @@ namespace RealSR_GUI
             if (CheckBox_3.IsChecked == true)
             {
                 CheckBox_1.IsEnabled = false;
+                CheckBox_2.IsChecked = true;
+                NoWindow = true;
                 //CheckBox_2.IsEnabled = false;
             }
             else
             {
                 CheckBox_1.IsEnabled = true;
+                CheckBox_2.IsChecked = false;
+                NoWindow = false;
                 //CheckBox_2.IsEnabled = true;
             }
         }
