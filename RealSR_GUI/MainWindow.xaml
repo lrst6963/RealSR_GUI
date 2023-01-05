@@ -13,15 +13,15 @@
         </Grid.RowDefinitions>
         <ComboBox x:Name="ComboBox_Module" HorizontalAlignment="Left" VerticalAlignment="Top" Width="345" SelectedIndex="0" FontSize="20" Margin="171,15,0,0" Foreground="Black"/>
         <Label Content="选择模块:" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="20" Margin="67,18,0,0" Foreground="#DD000000" FontWeight="Bold"/>
-        <Button x:Name="Open_Dir" Content="选择文件" HorizontalAlignment="Left" VerticalAlignment="Top" Height="47" Width="138" RenderTransformOrigin="1.119,0.244" Margin="171,172,0,0" Click="Open_Dir_Click" FontSize="20" FontWeight="Bold" Grid.RowSpan="2" Cursor="Hand"/>
-        <Button x:Name="START" Content="开始" HorizontalAlignment="Left" VerticalAlignment="Top" Height="47" Width="125" RenderTransformOrigin="1.119,0.244" Margin="391,172,0,0" Click="START_Click" FontSize="20" FontWeight="Bold" Grid.RowSpan="2"/>
+        <Button x:Name="Open_Dir" Content="选择文件" HorizontalAlignment="Left" VerticalAlignment="Top" Height="47" Width="138" RenderTransformOrigin="1.119,0.244" Margin="171,172,0,0" Click="OpenFiles_Click" FontSize="20" FontWeight="Bold" Grid.RowSpan="2" Cursor="Hand"/>
+        <Button x:Name="START" Content="开始" HorizontalAlignment="Left" VerticalAlignment="Top" Height="47" Width="125" RenderTransformOrigin="1.119,0.244" Margin="391,172,0,0" Click="StartProcessing_Click" FontSize="20" FontWeight="Bold" Grid.RowSpan="2"/>
         <Label Content="输入文件名:" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="20" Margin="47,46,0,0" Foreground="Black" Background="#00000000" FontWeight="Bold" Grid.Row="1"/>
         <Label Content="输出文件名:" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="20" Margin="47,94,0,0" Foreground="Black" Background="#00000000" FontWeight="Bold" Grid.Row="1"/>
-        <Label x:Name="filedirs" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="20" Width="520" Margin="171,46,0,0" MouseDown="filedirs_MouseDown" Background="{x:Null}" Foreground="#DD000000" Grid.Row="1" Height="34" Content=""/>
-        <Label x:Name="filedirs_out" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="20" Width="520" Margin="171,94,0,0" MouseDown="filedirs_out_MouseDown" Foreground="#DD000000" Height="34" Focusable="True" Background="{x:Null}" Grid.Row="1" Content=""/>
-        <CheckBox x:Name="CheckBox_1" Content="完成后打开" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="171,94,0,0" Foreground="Black" Height="28" Width="129" FontSize="20" FontWeight="Bold"/>
+        <Label x:Name="filedirs" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="20" Width="520" Margin="171,46,0,0" MouseDown="PathLabel_MouseDown" Background="{x:Null}" Foreground="#DD000000" Grid.Row="1" Height="34" Content=""/>
+        <Label x:Name="filedirs_out" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="20" Width="520" Margin="171,94,0,0" MouseDown="PathLabel_MouseDown" Foreground="#DD000000" Height="34" Focusable="True" Background="{x:Null}" Grid.Row="1" Content=""/>
+        <CheckBox x:Name="CheckBox_1" Content="完成后打开目录" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="171,94,0,0" Foreground="Black" Height="28" Width="166" FontSize="20" FontWeight="Bold"/>
         <CheckBox x:Name="CheckBox_2" Content="不显示输出窗口" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="171,127,0,0" Foreground="Black" Height="28" Width="166" FontSize="20" FontWeight="Bold" Click="CheckBox_2_Click" IsChecked="False"/>
-        <CheckBox x:Name="CheckBox_3" Content="多选" HorizontalAlignment="Left" Margin="171,61,0,0" VerticalAlignment="Top" Foreground="Black" Height="28" Width="72" FontSize="20" FontWeight="Bold" Click="CheckBox_3_Click"/>
+        <CheckBox x:Name="CheckBox_3" Content="多选" HorizontalAlignment="Left" Margin="171,61,0,0" VerticalAlignment="Top" Foreground="Black" Height="28" Width="72" FontSize="20" FontWeight="Bold" Click="MultiSelectCheckBox_Click"/>
         <ComboBox x:Name="ThemeComboBox" HorizontalAlignment="Left" Margin="396,98,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="ThemeComboBox_SelectionChanged" RenderTransformOrigin="0.033,0.366" SelectedIndex="18"/>
         <ComboBox x:Name="ComboBox_ImgType" HorizontalAlignment="Left" Margin="396,65,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="ComboBox_ImgType_SelectionChanged" SelectedIndex="1"/>
 
