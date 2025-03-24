@@ -3,9 +3,11 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows7.0</TargetFramework>
+	<PublishSingleFile>true</PublishSingleFile>
+	  <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <DebugType>none</DebugType>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>

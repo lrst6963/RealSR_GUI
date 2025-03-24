@@ -11,6 +11,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Media.Animation;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Win32;
@@ -18,6 +19,10 @@ using MaterialDesignColors;
 using MaterialDesignThemes.Wpf;
 using System.Collections;
 using System.Diagnostics;
+using System.Windows.Media.Animation;
+using static MaterialDesignThemes.Wpf.Theme.ToolBar;
+using System.Windows.Threading;
+using System.Xml;
 
 namespace RealSR_GUI
 {
@@ -27,10 +32,88 @@ namespace RealSR_GUI
     public partial class MainWindow : Window
     {
         #region 常量与字段
-        public bool NoWindow = false;
+        public bool NoWindow =  true;
         private const string FileFilter = "图像文件|*.jpg;*.jpeg;*.png;*.bmp;*.jfif|所有文件|*.*";
         private const string FileDialogTitle = "选择文件";
+        private readonly List<Color> _baseColors = new()
+        {
+            Colors.Red, Colors.Pink, Colors.Purple, Colors.DeepPink,
+            Colors.Indigo, Colors.Blue, Colors.LightBlue, Colors.Cyan,
+            Colors.Teal, Colors.Green, Colors.LightGreen, Colors.Lime,
+            Colors.Yellow, Colors.Orange, Colors.DeepSkyBlue, Colors.Brown,
+            Colors.Gray, Colors.SkyBlue, Color.FromArgb(255, 255, 190, 0) // Amber
+        };
 
+        // 当前可用颜色队列
+
+        // 当前可用颜色队列
+        private Queue<Color> _colorQueue = new();
+        private bool _isAnimating;
+        private readonly Random _random = new();
+        private DispatcherTimer _colorTimer;
+        private bool _isRunning;
+        private SolidColorBrush _bgBrush ;
+
+
+        private void ApplyTheme(Color primaryColor)
+        {
+            var paletteHelper = new PaletteHelper();
+            Theme theme = paletteHelper.GetTheme();
+
+            // 设置主色
+            theme.SetPrimaryColor(primaryColor);
+
+            // 可选：设置次要颜色
+            //theme.SetSecondaryColor(primaryColor);
+
+            // 应用主题
+            paletteHelper.SetTheme(theme);
+
+        }
+        private string GetColorName(Color color)
+        {
+            return color switch
+            {
+                _ when color == Colors.Red => "热情红",
+                _ when color == Colors.Pink => "浪漫粉",
+                _ when color == Colors.Purple => "神秘紫",
+                _ when color == Colors.DeepPink => "深粉",
+                _ when color == Colors.Indigo => "靛蓝",
+                _ when color == Colors.Blue => "天空蓝",
+                _ when color == Colors.LightBlue => "浅蓝",
+                _ when color == Colors.Cyan => "青蓝",
+                _ when color == Colors.Teal => "水鸭绿",
+                _ when color == Colors.Green => "自然绿",
+                _ when color == Colors.LightGreen => "浅绿",
+                _ when color == Colors.Lime => "柠檬黄",
+                _ when color == Colors.Yellow => "阳光黄",
+                _ when color == Colors.Orange => "活力橙",
+                _ when color == Colors.DeepSkyBlue => "深空蓝",
+                _ when color == Colors.Brown => "大地棕",
+                _ when color == Colors.Gray => "高级灰",
+                _ when color == Colors.SkyBlue => "天蓝",
+                _ when color == Color.FromArgb(255, 255, 190, 0) => "琥珀金",
+                _ => "自定义颜色"
+            };
+        }
+        // 洗牌颜色池
+        private void ShuffleColors()
+        {
+            if (_baseColors == null || _baseColors.Count == 0)
+            {
+                MessageBox.Show("颜色池未初始化");
+                return;
+            }
+
+            var temp = new List<Color>(_baseColors);
+            // Fisher-Yates洗牌算法
+            for (int i = temp.Count - 1; i > 0; i--)
+            {
+                int j = _random.Next(i + 1);
+                (temp[i], temp[j]) = (temp[j], temp[i]);
+            }
+            _colorQueue = new Queue<Color>(temp);
+        }
         // 主题颜色配置字典（Key: 颜色名称，Value: 颜色值）
         private readonly Dictionary<string, Color> _themeColors = new()
         {
@@ -53,8 +136,20 @@ namespace RealSR_GUI
         {
             InitializeComponent();
             InitializeThemeColors();
+            SetupTimer();
+            ShuffleColors(); // 初始洗牌
         }
-
+        private void SetupTimer()
+        {
+            if (_colorTimer == null)
+            {
+                _colorTimer = new DispatcherTimer
+                {
+                    Interval = TimeSpan.FromMilliseconds(100)  // 0.1秒切换一次
+                };
+                _colorTimer.Tick += ColorTimer_Tick;
+            }
+        }
         /// <summary>
         /// 窗口加载时初始化组件
         /// </summary>
@@ -88,7 +183,7 @@ namespace RealSR_GUI
         private void InitializeThemeColors()
         {
             ThemeComboBox.ItemsSource = _themeColors.Keys;
-            ThemeComboBox.SelectedIndex = 0;  // 默认选择第一个
+            ThemeComboBox.SelectedIndex = 1;  // 默认选择第二个
         }
 
         /// <summary>
@@ -105,7 +200,7 @@ namespace RealSR_GUI
         /// </summary>
         private void ValidateDependencies()
         {
-            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            var baseDir = Directory.GetCurrentDirectory();
             START.IsEnabled = File.Exists(System.IO.Path.Combine(baseDir, "realesrgan-ncnn-vulkan.exe"));
             ComboBox_ImgType.IsEnabled = File.Exists(System.IO.Path.Combine(baseDir, "ffmpeg.exe"));
         }
@@ -140,13 +235,13 @@ namespace RealSR_GUI
         {
             var count = _selectedFiles.Length;
             // 多文件显示数量，单文件显示完整路径
-            filedirs.Content = count > 1
+            filedirs.Text = count > 1
                 ? $"({count}个文件)"
                 : count == 1
                     ? _selectedFiles[0]
                     : string.Empty;
 
-            filedirs_out.Content = count > 1 ? $"({count}个文件)" : string.Empty;
+            filedirs_out.Text = count > 1 ? $"({count}个文件)" : string.Empty;
         }
         #endregion
 
@@ -205,7 +300,7 @@ namespace RealSR_GUI
             {
                 OpenOutputDirectory(System.IO.Path.GetDirectoryName(tempOutput));
             }
-            filedirs_out.Content = tempOutput;
+            filedirs_out.Text = tempOutput;
         }
 
         /// <summary>
@@ -261,7 +356,7 @@ namespace RealSR_GUI
         /// </summary>
         private void UpdateProgress(int completed)
         {
-            filedirs_out.Content = $"({completed}/{_selectedFiles.Length}个文件已完成)";
+            filedirs_out.Text = $"({completed}/{_selectedFiles.Length}个文件已完成)";
         }
 
         /// <summary>
@@ -270,7 +365,7 @@ namespace RealSR_GUI
         private void ShowCompletionMessage()
         {
             MessageBox.Show("所有文件处理完成！", "完成", MessageBoxButton.OK, MessageBoxImage.Information);
-            //filedirs_out.Content = "处理完成";
+            filedirs_out.Text = "处理完成";
         }
 
         /// <summary>
@@ -365,6 +460,72 @@ namespace RealSR_GUI
                 _hideProcessWindow = false;
             }
         }
-        #endregion
+
+
+
+
+
+
+
+
+
+
+        private void ColorTimer_Tick(object sender, EventArgs e)
+        {
+            if (_colorQueue.Count == 0) ShuffleColors();
+
+            var nextColor = _colorQueue.Dequeue();
+            _colorQueue.Enqueue(nextColor);
+            ApplyTheme(nextColor);
+        }
+
+        // 主题切换按钮点击事件
+        private void ThemeButton_Click(object sender, RoutedEventArgs e)
+        {
+            // 空引用防护
+            if (ThemeButton == null || _colorTimer == null || _colorQueue == null)
+            {
+                MessageBox.Show("系统未正确初始化");
+                return;
+            }
+
+            try
+            {
+                _isRunning = !_isRunning;
+
+                if (_isRunning)
+                {
+                    // 队列空时重新填充
+                    if (_colorQueue.Count == 0) ShuffleColors();
+
+                    _colorTimer.Start();
+                    ThemeButton.Content = "🛑 停止切换";
+                }
+                else
+                {
+                    _colorTimer.Stop();
+                    ThemeButton.Content = "🌈 开始切换";
+                }
+            }
+            catch (NullReferenceException ex)
+            {
+                MessageBox.Show($"空引用异常: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"操作失败: {ex.Message}");
+            }
+        }
+        
+        // 获取下一个颜色（自动洗牌）
+        private Color GetNextColor()
+        {
+            if (_colorQueue.Count == 0) ShuffleColors();
+
+            var color = _colorQueue.Dequeue();
+            _colorQueue.Enqueue(color); // 循环队列
+            return color;
+        }
     }
+    #endregion
 }
